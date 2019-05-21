@@ -55,15 +55,17 @@
 
 
 <script>
-
+    //使用jQuery绑定一个点击事件
     $('#btn').click(function () {
-
+        // serialize 是输出一个序列化表单值
         var data = $('#form').serialize();
-
+        //通过ajax的post方法向服务端提交数据
         $.post('', data, function (e) {
             if (e.code){
+                //如果有返回值 把当前的url设置为服务端传过来的url
                 location.href = e.url;
             }else{
+                //如果没有 报错
                 layer.alert(e.msg, {icon: 2})
             }
         })
