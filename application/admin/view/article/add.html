@@ -79,6 +79,7 @@
                         <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-2">
                                 <button class="btn btn-primary" id="btn" type="button">确认添加</button>
+                                <button class="btn btn-white" onclick="history.back(-1);" type="button">返回上一页</button>
                                 <!--<button class="btn btn-white" onclick="history.back(-1);" type="button">返回分类列表</button>-->
                             </div>
                         </div>
@@ -98,21 +99,30 @@
 var ue = UM.getEditor('editor1');
 //使用给父级给子集绑定事件可以达到遍历子集的点击事件
 $('#form').on('change','.category',function () {
+    //赋值当前
     var i = $(this);
+    //ajax通过post发送数据
     $.post('{:url("admin/Article/ajaxCategory")}',{id:i.val()},function (e) {
         // console.log(e);
+        //判断长度是否存在
         if (e.length) {
-
-            // var str = '<div class="col-sm-2"><select class="form-control m-b category" name="category_id"><option value="0">请选择分类</option>';
+            //把一个HTML赋值给str
             var str = '<div class="col-sm-2"><select class = "form-control m-b category" name = "category_id"><option value="0">请选择分类</option>';
+            //遍历e
             for (var j in e) {
+                //把e的第一个数据赋值给d
                 var d = e[j];
+                //遍历所有的的id和name并拼接起来
                 str += '<option value = "'+d.id+'">'+d.name+'</option>';
             }
+            //加上结尾
             str += '</select><div>';
-            console.dir(i.parent());
-            i.parent().nextAll().remove();
+           //指向父级并把父级之下的同级兄弟属性全部移除
+            i.parent().nextAll().empty();
+            //并且把新的HTML加在他之后
             i.parent().after(str);
+        }else {
+            i.parent().nextAll().empty();
         }
     });
 
