@@ -22,7 +22,7 @@ class Article extends Controller
         $re = $this->request;
         //判断是不是GET请求
         if ($re->isPost()){
-            //获取我们所取药的值
+            //获取我们所取的值
             $data = $re->only(['title','category_id','author','content','status']);
             //验证
             $rule = [
@@ -85,7 +85,7 @@ class Article extends Controller
     public function lists()
     {
         //通过一对多关联查询出来符合条件的所有数据 并且排列顺序 并自定义标签
-        $list = \app\admin\model\article::with('category')->order('create_time DESC')->paginate(2);
+        $list = \app\admin\model\article::with('category')->order('create_time DESC')->paginate(6);
         $this->assign('list',$list);
         return $this->fetch();
     }
@@ -117,13 +117,16 @@ class Article extends Controller
         }
     }
 
+    /**
+     * 自写删除
+     */
     public function del()
     {
+        //获取通过ajax传过来的id
         $id = $this->request->param('id');
+        //并通过这条id获取一条记录
         $data = \app\admin\model\article::get($id);
-//        if (1){
-//            $this->success('成功');
-//        }
+        //判断是否删除成功的条件 来返回正确/错误信息
         if ($data->delete()){
             $this->success('成功');
         }else{
@@ -132,16 +135,22 @@ class Article extends Controller
 
     }
 
+    /** 自写修改
+     * @return mixed
+     */
     public function update()
     {
+        //判断是否为GET请求
         if ($this->request->isGet()) {
+            //获取url穿过来的id值
             $id = $this->request->param('id');
+            //获取一条记录并把它转成数组
             $list = \app\admin\model\article::get($id)->toArray();
-//        print_r($list);
+            //自定义标签
             $this->assign('list', $list);
-
             return $this->fetch();
         }
+        //判断是否为POST请求
         if ($this->request->isPost()){
             $id = $this->request->param('id');
             $data = $this->request->only(['title','content','author']);
@@ -163,6 +172,9 @@ class Article extends Controller
                 $this->error('错误');
             }
           $a = \app\admin\model\article::get($id);
+            if ($a->content == $data['content']){
+                $this->error('您的内容必须修改');
+            }
             if ($a->save($data)){
                 $this->success('成功',url('admin/Article/lists'));
             }else{

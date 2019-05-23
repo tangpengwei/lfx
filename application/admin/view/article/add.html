@@ -37,8 +37,8 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">分类</label>
                             <div class="col-sm-2">
-                                <select class="form-control m-b category" name="category_id">
-                                    <option value="0">请选择分类</option>
+                                <select id="select" class="form-control m-b category" name="category_id">
+                                    <option value="">请选择分类</option>
                                     {foreach $all as $v}
                                     <option value="{$v.id}">{$v.name}</option>
                                     {/foreach}
@@ -107,7 +107,7 @@ $('#form').on('change','.category',function () {
         //判断长度是否存在
         if (e.length) {
             //把一个HTML赋值给str
-            var str = '<div class="col-sm-2"><select class = "form-control m-b category" name = "category_id"><option value="0">请选择分类</option>';
+            var str = '<div class="col-sm-2"><select class = "form-control m-b category" name = "category_id"><option value="">请选择分类</option>';
             //遍历e
             for (var j in e) {
                 //把e的第一个数据赋值给d
@@ -118,11 +118,20 @@ $('#form').on('change','.category',function () {
             //加上结尾
             str += '</select><div>';
            //指向父级并把父级之下的同级兄弟属性全部移除
-            i.parent().nextAll().empty();
+            i.parent().nextAll().remove();
             //并且把新的HTML加在他之后
             i.parent().after(str);
+            if (i.val() == "") {
+                // alert('错误');
+
+                // location.href=location.href;
+                i.parent().nextAll().remove();
+
+            }
+
+
         }else {
-            i.parent().nextAll().empty();
+            i.parent().nextAll().remove();
         }
     });
 
@@ -133,7 +142,17 @@ $('#form').on('change','.category',function () {
 
 $('#btn').click(function () {
     var data = $('#form').serialize();
-    $.post('',data,function (e) {
+    var a =data.split('&');
+    var b = [];
+    for(var i=0;i<a.length;i++){
+        if (a[i] == "category_id=") {
+            i++;
+        }
+        b[i] = a[i];
+    }
+    var c = b.join("&");
+    console.log(c);
+    $.post('',c,function (e) {
 
         if (e.code){
             layer.alert(e.msg,{icon:1},function () {

@@ -10,6 +10,7 @@ class article extends Model
     protected $autoWriteTimestamp = true;
     public function category()
     {
+        //一对多关联
         return $this->belongsTo('category','category_id');
     }
 }
