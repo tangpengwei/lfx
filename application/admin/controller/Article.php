@@ -23,7 +23,7 @@ class Article extends Controller
         //判断是不是GET请求
         if ($re->isPost()){
             //获取我们所取的值
-            $data = $re->only(['title','category_id','author','content','status']);
+            $data = $re->only(['title','category_id','author','content','status','thumb','minthumb']);
             //验证
             $rule = [
                 'title' => 'require|length:1,50',
@@ -183,6 +183,32 @@ class Article extends Controller
         }
 }
 
+    /**
+     * 图片上传
+     */
+    public function uploaders()
+    {
+            $image = $this->request->file('file');
+            $res = $image->validate(['size'=>1048576,'ext'=> 'jpg,png,gif'])->move('static/upload');
+            if ($res){
+                //获取文件的保存路径
+//                $res->getPath();
+                    //获取文件的保存文件名
+//                $res->getFilename();
+                //含有路径信息的文件名
+                $path = $res->getPathname();
+                //缩略图保存路径
+                $min = $res->getPath().'/min'.$res->getFilename();
+                $im = \think\Image::open($path);
+                //裁剪
+//                $im->thumb(60,60,\think\Image::THUMB_CENTER)->save($res->getPath().'/min'.$res->getFilename());
+                //缩略图
+                $im->thumb(60,60,\think\Image::THUMB_CENTER)->save($min);
+                return json(['code'=>1,'thumb'=>$path,'min'=>$min]);
+            }else{
+                return json(['code'=>0,'info'=>$res->getError()]);
+            }
+    }
 
 }
 
