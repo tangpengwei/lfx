@@ -8,6 +8,7 @@
 namespace app\admin\controller;
 use app\admin\model\category;
 use think\Controller;
+use think\Log;
 
 class Article extends Controller
 {
@@ -145,7 +146,7 @@ class Article extends Controller
             //获取url穿过来的id值
             $id = $this->request->param('id');
             //获取一条记录并把它转成数组
-            $list = \app\admin\model\article::get($id)->toArray();
+            $list = \app\admin\model\article::find($id);
             //自定义标签
             $this->assign('list', $list);
             return $this->fetch();
@@ -184,30 +185,69 @@ class Article extends Controller
 }
 
     /**
-     * 图片上传
-     */
+ * 图片上传
+ */
     public function uploaders()
     {
-            $image = $this->request->file('file');
-            $res = $image->validate(['size'=>1048576,'ext'=> 'jpg,png,gif'])->move('static/upload');
-            if ($res){
-                //获取文件的保存路径
+        $image = $this->request->file('file');
+        $res = $image->validate(['size'=>1048576,'ext'=> 'jpg,png,gif'])->move('static/upload');
+        if ($res){
+            //获取文件的保存路径
 //                $res->getPath();
-                    //获取文件的保存文件名
+            //获取文件的保存文件名
 //                $res->getFilename();
-                //含有路径信息的文件名
-                $path = $res->getPathname();
-                //缩略图保存路径
-                $min = $res->getPath().'/min'.$res->getFilename();
-                $im = \think\Image::open($path);
-                //裁剪
+            //含有路径信息的文件名
+            $path = $res->getPathname();
+            //缩略图保存路径
+            $min = $res->getPath().'/min'.$res->getFilename();
+            $im = \think\Image::open($path);
+            //裁剪
 //                $im->thumb(60,60,\think\Image::THUMB_CENTER)->save($res->getPath().'/min'.$res->getFilename());
-                //缩略图
-                $im->thumb(60,60,\think\Image::THUMB_CENTER)->save($min);
-                return json(['code'=>1,'thumb'=>$path,'min'=>$min]);
+            //缩略图
+            $im->thumb(60,60,\think\Image::THUMB_CENTER)->save($min);
+            return json(['code'=>1,'thumb'=>$path,'min'=>$min]);
+        }else{
+            return json(['code'=>0,'info'=>$res->getError()]);
+        }
+    }
+
+
+
+
+    /**
+     * 百度富文本编辑器 添加图片配置
+     */
+    public function ueAdd()
+    {
+
+            $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", "", file_get_contents("static/ui/library/ue/php/config.json")), true);
+            if ($this->request->isGet()){
+
+            return json($CONFIG);
+        }
+        if ($this->request->isPost()){
+            $image = $this->request->file('upfile');
+            $allow = 'png,jpg,jpeg,gif,bmp,flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid,rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md';
+            $res = $image->validate(['size'=>1048576,'ext'=>$allow])->move('static/upload');
+            if ($res){
+                $info = [
+                    "originalName"=> $res->getFilename(),
+                    "name"=>$res->getSaveName(),
+                    "url"=>$res->getPathname(),
+                    "size"=>$res->getSize(),
+                    "type"=>$res->getExtension(),
+                    "state"=>'SUCCESS'
+                ];
+                return json($info);
             }else{
-                return json(['code'=>0,'info'=>$res->getError()]);
+                return [
+                    "state" => "ERROR"
+                ];
             }
+
+
+        }
+
     }
 
 }

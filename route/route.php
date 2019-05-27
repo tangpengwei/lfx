@@ -24,4 +24,7 @@ Route::rule('admin-article-add','admin/Article/add')->method('GET,POST');
 //ajax获取文章分类
 Route::post('admin-article-category','admin/Article/ajaxCategory');
 Route::post('admin-article-change-status','admin/Article/changeStatus');
-
+//删除一条记录
+Route::post('admin-article-del','admin/Article/del');
+//修改一条记录
+Route::rule('admin-article-update','admin/Article/update')->method('GET,POST');
