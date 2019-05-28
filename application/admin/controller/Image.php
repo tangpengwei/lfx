@@ -28,6 +28,7 @@ class Image extends Controller
                 $data[]= ['category_id'=>$id,'location'=>$v];
             }
             $image = new \app\admin\model\image();
+//            echo 111;
             if ($image->saveAll($data)){
                 $this->success('成功');
             }else{
@@ -40,7 +41,19 @@ class Image extends Controller
 
     public function lists()
     {
-        
+        $id = $this->request->param('id');
+        if (empty($id)){
+            $where =[];
+
+        }else{
+            $where['category_id']=$id;
+        }
+        $list= \app\admin\model\image::where($where)->select();
+        $this->assign('list',$list);
+        $categoryList = category::where('type',2)->select();
+        $this->assign('categoryList',$categoryList);
+//        print_r($categoryList);
+        return $this->fetch();
     }
 
 

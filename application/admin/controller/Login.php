@@ -18,7 +18,7 @@ class Login extends Controller
     public function out()
     {
         //把session置为null
-        session('adminLoginInfo',null);
+        session('c',null);
         //直接跳转
         $this->redirect('admin/Login/in');
     }

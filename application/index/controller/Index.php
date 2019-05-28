@@ -3,6 +3,7 @@ namespace app\index\controller;
 
 use app\admin\model\article;
 use app\admin\model\category;
+use app\admin\model\image;
 use think\Controller;
 
 class Index extends Controller
@@ -30,13 +31,14 @@ class Index extends Controller
             $list = article::where('category_id',$id)
                 ->where('status',1)
                 ->order('create_time desc')
-                ->paginate(10);
+                ->paginate(1);
+
         }else{
             $this->assign('categoryInfo','');
             $list = article::where('category_id','in',$categories)
                 ->where('status',1)
                 ->order('create_time desc')
-                ->paginate(10);
+                ->paginate(1);
 
         }
         $this->assign('list',$list);
@@ -62,7 +64,7 @@ class Index extends Controller
     public function about()
     {
         //分类的id
-        $id = $this->request->param('id');
+        $id = $this->request->param('id',5);
         $this->categoryList(4);
         $info = article::where('category_id',$id)->find();
         $this->assign('info',$info);
@@ -77,4 +79,25 @@ class Index extends Controller
         return $category;
     }
 
+
+
+
+    public function imagesshow()
+    {
+        $id = $this->request->param('id',8);
+        $this->assign('id',$id);
+        $category = $this->categoryList(7);
+        if (empty($id)){
+            $where = [];
+        }else{
+            $where['category_id'] = $id;
+        }
+        $list = image::where($where)->select();
+        $this->assign('list',$list);
+        $categoryList = category::where('type',2)->select();
+        $this->assign('categoryList',$categoryList);
+        $images = image::where('category_id',$id)->paginate(10);
+        $this->assign('images',$images);
+        return $this->fetch();
+    }
 }
